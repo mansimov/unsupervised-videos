@@ -1,0 +1,6 @@
+cudamat/*.so
+cudamat/*.pyc
+*_pb2.py
+*.pyc
+playground.py
+*.pdf
