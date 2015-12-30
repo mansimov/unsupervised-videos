@@ -1,0 +1,328 @@
+name: "lstm_autoencoder"
+checkpoint_dir: "/ais/gobi3/u/emansim/unsupervised-videos/models"
+print_after: 100
+display_after: 0
+validate_after: 0
+save_after: 0
+max_iters: 10000000
+dec_seq_length: 10
+future_seq_length: 10
+dec_conditional: true
+future_conditional: true
+binary_data: true
+lstm {
+  name: "lstm_1_enc"
+  num_hid: 2048
+  has_input: true
+  input_dims: 4096
+  w_dense {
+    init_type: UNIFORM
+    scale: 0.01
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  w_diag {
+    init_type: UNIFORM
+    scale: 0.1
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  b {
+    init_type: CONSTANT
+    scale: 0.0
+    epsilon: 0.0001
+    momentum: 0.9
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  w_input {
+    init_type: UNIFORM
+    scale: 0.01
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+}
+lstm {
+  name: "lstm_2_enc"
+  num_hid: 2048
+  has_input: true
+  input_dims: 2048
+  w_dense {
+    init_type: UNIFORM
+    scale: 0.01
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  w_diag {
+    init_type: UNIFORM
+    scale: 0.1
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  b {
+    init_type: CONSTANT
+    scale: 0.0
+    epsilon: 0.0001
+    momentum: 0.9
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  w_input {
+    init_type: UNIFORM
+    scale: 0.01
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+}
+lstm_dec {
+  name: "lstm_1_dec"
+  num_hid: 2048
+  has_input: true
+  input_dims: 4096
+  w_dense {
+    init_type: UNIFORM
+    scale: 0.01
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  w_diag {
+    init_type: UNIFORM
+    scale: 0.1
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  b {
+    init_type: CONSTANT
+    scale: 0.0
+    epsilon: 0.0001
+    momentum: 0.9
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+   w_input {
+    init_type: UNIFORM
+    scale: 0.01
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+}
+
+lstm_dec {
+  name: "lstm_2_dec"
+  num_hid: 2048
+  has_output: true
+  has_input: true
+  output_dims: 4096
+  input_dims: 2048
+  w_dense {
+    init_type: UNIFORM
+    scale: 0.01
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  w_diag {
+    init_type: UNIFORM
+    scale: 0.1
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  b {
+    init_type: CONSTANT
+    scale: 0.0
+    epsilon: 0.0001
+    momentum: 0.9
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+   w_input {
+    init_type: UNIFORM
+    scale: 0.01
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  w_output {
+    init_type: UNIFORM
+    scale: 0.01
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  b_output {
+    init_type: CONSTANT
+    scale: 0.0
+    epsilon: 0.0001
+    momentum: 0.9
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+}
+
+lstm_future {
+  name: "lstm_1_fut"
+  num_hid: 2048
+  has_input: true
+  input_dims: 4096
+  w_dense {
+    init_type: UNIFORM
+    scale: 0.01
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  w_diag {
+    init_type: UNIFORM
+    scale: 0.1
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  b {
+    init_type: CONSTANT
+    scale: 0.0
+    epsilon: 0.0001
+    momentum: 0.9
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  w_input {
+    init_type: UNIFORM
+    scale: 0.01
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+}
+
+
+lstm_future {
+  name: "lstm_2_fut"
+  num_hid: 2048
+  has_output: true
+  has_input: true
+  input_dims: 2048
+  output_dims: 4096
+  w_dense {
+    init_type: UNIFORM
+    scale: 0.01
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  w_diag {
+    init_type: UNIFORM
+    scale: 0.1
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  b {
+    init_type: CONSTANT
+    scale: 0.0
+    epsilon: 0.0001
+    momentum: 0.9
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  w_input {
+    init_type: UNIFORM
+    scale: 0.01
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  w_output {
+    init_type: UNIFORM
+    scale: 0.01
+    epsilon: 0.0001
+    momentum: 0.9
+    l2_decay: 0.0001
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  b_output {
+    init_type: CONSTANT
+    scale: 0.0
+    epsilon: 0.0001
+    momentum: 0.9
+    gradient_clip: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+}

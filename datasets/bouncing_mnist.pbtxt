@@ -1,0 +1,6 @@
+dataset_type: BOUNCING_MNIST
+num_frames: 20
+batch_size: 80
+image_size: 64
+num_digits: 2
+step_length: 0.1

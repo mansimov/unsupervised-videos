@@ -1,0 +1,122 @@
+// protoc -I=./ --python_out=./ config.proto
+
+package config;
+
+message Data {
+  required string data_file = 1;
+  required string dataset_name = 2;
+  optional string labels_file = 3;
+  optional string num_frames_file = 4;
+  optional int32 num_frames = 5 [default=1];
+  optional int32 stride = 6 [default=1];
+  optional bool randomize = 7 [default=false];
+  optional int32 batch_size = 8;
+  enum DatasetType {
+    LABELLED = 0;
+    UNLABELLED = 1;
+    BOUNCING_MNIST = 2;
+    BOUNCING_MNIST_FIXED = 3;
+  }
+  optional DatasetType dataset_type = 9 [default=LABELLED];
+
+  // This must be specified only if it cannot be detrmined from any h5 file.
+  // For example BOUNCING_MNIST
+  optional int32 image_size = 10;
+  optional int32 num_digits = 11;
+  optional float step_length = 12;
+
+
+  // Choose only some videos from the data.
+  // Used for running on subsets.
+  optional string video_ids_file = 13; 
+
+  optional int32 image_size_x = 14 [default=0];
+  optional int32 image_size_y = 15 [default=0];
+  optional int32 patch_size_x = 16 [default=0];
+  optional int32 patch_size_y = 17 [default=0];
+  optional int32 num_colors   = 18 [default=0];
+  optional string mean_file = 19;
+  optional int32 sample_times = 20 [default=1];
+}
+
+message Param {
+  enum InitType {
+    CONSTANT = 0;
+    GAUSSIAN = 1;
+    UNIFORM = 2;
+    PRETRAINED = 3;
+  }
+  optional InitType init_type = 1;
+  optional float scale = 2 [default=0.0];
+  optional float epsilon = 3 [default=0.0];
+  optional float momentum = 4 [default=0.0];
+  optional float l2_decay = 5 [default=0.0];
+  optional float gradient_clip = 6 [default=0.0];
+  optional float eps_decay_factor = 7 [default=1.0];
+  optional int32 eps_decay_after = 8 [default=0];
+
+  // For loading pretrained parameters.
+  optional string file_name = 9;
+  optional string dataset_name = 10;
+}
+
+message LSTM {
+  required string name = 1;
+  required int32 num_hid = 2;
+  optional Param w_dense = 3;
+  optional Param w_diag = 4;
+  optional Param b = 5;
+  optional Param w_input = 6;
+  optional Param w_output = 7;
+  optional Param b_output = 8;
+  optional bool has_input = 9 [default=false];
+  optional bool has_output = 10 [default=false];
+  optional bool use_relu = 11 [default=false];
+  optional int32 input_dims = 12 [default=0];
+  optional int32 output_dims = 13 [default=0];
+  optional float input_dropprob = 14 [default=0];
+  optional float output_dropprob = 15 [default=0];
+}
+
+message Logreg {
+  required string name = 1;
+  required int32 num_inputs = 2;
+  required int32 num_outputs = 3;
+  optional Param w = 4;
+  optional Param b = 5;
+  optional float dropprob = 6 [default=0];
+}
+
+message Model {
+  required string name = 1;
+  repeated LSTM lstm = 2;
+  required Logreg logreg = 3;
+  repeated string timestamp = 4;
+  optional string checkpoint_dir = 5;
+  optional int32 max_iters = 6 [default=0];
+  optional int32 print_after = 7 [default=1];
+  optional int32 validate_after = 8 [default=0];
+  optional int32 save_after = 9 [default=0];
+  optional int32 display_after = 10 [default=0];
+  
+  // Autoencoders.
+  optional int32 dec_seq_length = 11 [default=0];
+  repeated LSTM lstm_dec = 12;
+
+  optional bool squash_relu = 13 [default=false];
+  optional float squash_relu_lambda = 14 [default=2.0];
+  optional bool binary_data = 15 [default=false];
+  
+  // Future predictor
+  optional int32 future_seq_length = 16 [default=0];
+  repeated LSTM lstm_future = 17;
+
+  // Conditional.
+  optional bool dec_conditional = 18 [default=false];
+  optional bool future_conditional = 19 [default=false];
+
+  optional bool decoder_copy_init_state = 20 [default=false];
+  optional bool future_copy_init_state = 21 [default=false];
+  
+  optional bool relu_data = 22 [default=false];
+}
