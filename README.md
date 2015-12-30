@@ -1,6 +1,6 @@
 ## Unsupervised Learning of Video Representations using LSTMs
 
-Code for paper [Unsupervised Learning of Video Representations using LSTMs](http://arxiv.org/abs/1502.04681)
+Code for paper [Unsupervised Learning of Video Representations using LSTMs](http://arxiv.org/abs/1502.04681) (Nitish Srivastava, Elman Mansimov, Ruslan Salakhutdinov 2015).
 
 Note that the code at [this link](http://www.cs.toronto.edu/~nitish/unsupervised_video/) is deprecated.
 
@@ -14,7 +14,9 @@ Other libraries you need to install are:
 * google.protobuf
 
 Next compile .proto file by calling
-`protoc -I=./ --python_out=./ config.proto`
+```
+protoc -I=./ --python_out=./ config.proto
+```
 
 ### Bouncing (Moving) MNIST dataset
 python lstm_combo.py models/lstm_combo_2layer_mnist.pbtxt datasets/bouncing_mnist.pbtxt datasets/bouncing_mnist.pbtxt 1
