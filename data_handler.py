@@ -12,10 +12,14 @@ def ChooseDataHandler(data_pb):
     return BouncingMNISTDataHandler(data_pb)
   elif data_pb.dataset_type == config_pb2.Data.BOUNCING_MNIST_FIXED:
     return BouncingMNISTFixedDataHandler(data_pb)
+  elif data_pb.dataset_type == config_pb2.Data.VIDEO_PATCH:
+    return VideoPatchDataHandler(data_pb)
   else:
     raise Exception('Unknown DatasetType.')
 
 class DataHandler(object):
+  """Handling labelled datasets"""
+   
   def __init__(self, data_pb):
     self.data_ = h5py.File(data_pb.data_file)[data_pb.dataset_name]
     self.seq_length_ = data_pb.num_frames
@@ -178,7 +182,6 @@ class DataHandler(object):
     pooled_correct = 0
     #flow_pooled_correct = 0
     correct = 0
-    pooled_pred_np = np.zeros((self.num_videos_,101))
     #flow_predictions = np.load('/ais/gobi3/u/nitish/UCF/reps/split1/flow_result.npy')
     #assert flow_predictions.shape == (self.num_videos_, predictions.shape[1])
     for i in xrange(self.num_videos_):
@@ -186,13 +189,9 @@ class DataHandler(object):
       correct += (predictions[start:end, :].argmax(axis=1) == self.labels_[i]).sum()
       pooled_pred = predictions[start:end, :].mean(axis=0)
       #avg_pooled_pred = (pooled_pred + 2 * flow_predictions[i, :])/3
-      pooled_pred_np[i,:] = pooled_pred
       pooled_correct += pooled_pred.argmax() == self.labels_[i]
       #flow_pooled_correct += avg_pooled_pred.argmax() == self.labels_[i]
       start = end
-
-    np.save('/ais/gobi3/u/emansim/ucf101/lstm_flow_74_9.npy', pooled_pred_np)
-    print 'Done Saving'
     return correct / float(self.dataset_size_), pooled_correct / float(self.num_videos_)
     #return flow_pooled_correct / float(self.num_videos_), pooled_correct / float(self.num_videos_)
   
@@ -200,6 +199,7 @@ class DataHandler(object):
     name, ext = os.path.splitext(output_file)
     output_file1 = '%s_original%s' % (name, ext)
     output_file2 = '%s_recon%s' % (name, ext)
+    
     if self.num_colors_ == 3:
       d = data[0, :].reshape(self.seq_length_, self.num_colors_, self.patch_size_y_, self.patch_size_x_)
       r = rec[0, :].reshape(-1, self.num_colors_, self.patch_size_y_, self.patch_size_x_)
@@ -252,7 +252,6 @@ class DataHandler(object):
       else:
         print output_file
         plt.savefig(output_file, bbox_inches='tight')
-
 
 class UnlabelledDataHandler(object):
   def __init__(self, data_pb):
@@ -331,8 +330,8 @@ class UnlabelledDataHandler(object):
       f.close()
     return self.batch_data_, None
 
-# Bouncing MNIST data handler
 class BouncingMNISTDataHandler(object):
+  """Data Handler that creates Bouncing MNIST dataset on the fly."""
   def __init__(self, data_pb):
     self.seq_length_ = data_pb.num_frames
     self.batch_size_ = data_pb.batch_size
@@ -347,10 +346,9 @@ class BouncingMNISTDataHandler(object):
       f = h5py.File('/ais/gobi3/u/nitish/mnist/mnist.h5')
     except:
       print 'Please set the correct path to MNIST dataset'
-      print 'The details are in documentation'
       sys.exit()
 
-    self.data_ = f['train_full'].value.reshape(-1, 28, 28)
+    self.data_ = f['train'].value.reshape(-1, 28, 28)
     f.close()
     self.indices_ = np.arange(self.data_.shape[0])
     self.row_ = 0
@@ -498,22 +496,29 @@ class BouncingMNISTDataHandler(object):
     else:
       plt.pause(0.1)
 
+# video patches loaded from some file
 class VideoPatchDataHandler(object):
   def __init__(self, data_pb):
     self.seq_length_ = data_pb.num_frames
     self.batch_size_ = data_pb.batch_size
     self.image_size_ = data_pb.image_size
-    self.data_path_ = data.data_path
-    self.is_color_ = data.is_color
+    self.data_file_ = data_pb.data_file
+    self.num_colors_ = data_pb.num_colors
+
+    self.is_color_ = False
+    if self.num_colors_ == 3:
+      self.is_color_ = True
+
     if self.is_color_:
       self.frame_size_ = (self.image_size_ ** 2) * 3
     else:
       self.frame_size_ = self.image_size_ ** 2
 
     try:
-      self.data_ = np.float32(np.load(self.data_path_)) / 255.
+      self.data_ = np.float32(np.load(self.data_file_)) / 255.
     except:
       print 'Please set the correct path to the dataset'
+      sys.exit()
 
     self.dataset_size_ = self.data_.shape[0]
     self.row_ = 0
@@ -529,6 +534,10 @@ class VideoPatchDataHandler(object):
 
   def GetSeqLength(self):
     return self.seq_length_
+
+  def Reset(self):
+    self.row_ = 0
+    pass
 
   def GetBatch(self, verbose=False):
     minibatch = self.data_[self.row_:self.row_+self.batch_size_]    
@@ -563,7 +572,7 @@ class VideoPatchDataHandler(object):
       else:     
         rec = rec[case_id, :].reshape(-1, self.image_size_, self.image_size_)
       enc_seq_length = rec.shape[0]
-    
+
     if fut is not None:
       if self.is_color_:
         fut = fut[case_id, :].reshape(-1, 3, self.image_size_, self.image_size_)

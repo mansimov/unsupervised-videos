@@ -1,14 +1,19 @@
 from data_handler import *
 import lstm
 
+
 class LSTMCombo(object):
   def __init__(self, model):
     self.model_ = model
+    
     self.lstm_stack_enc_ = lstm.LSTMStack()
     self.lstm_stack_dec_ = lstm.LSTMStack()
     self.lstm_stack_fut_ = lstm.LSTMStack()
+    
     self.decoder_copy_init_state_ = model.decoder_copy_init_state
     self.future_copy_init_state_  = model.future_copy_init_state
+    
+    # add LSTM blocks for encoder, decoder and future predictor
     for l in model.lstm:
       self.lstm_stack_enc_.Add(lstm.LSTM(l))
     if model.dec_seq_length > 0:
@@ -17,13 +22,17 @@ class LSTMCombo(object):
     if model.future_seq_length > 0:
       for l in model.lstm_future:
         self.lstm_stack_fut_.Add(lstm.LSTM(l))
+    
+    # do other initialization stuff
     assert model.dec_seq_length > 0 or model.future_seq_length > 0
     self.is_conditional_dec_ = model.dec_conditional
     self.is_conditional_fut_ = model.future_conditional
+   
     if self.is_conditional_dec_ and model.dec_seq_length > 0:
       assert self.lstm_stack_dec_.HasInputs()
     if self.is_conditional_fut_ and model.future_seq_length > 0:
       assert self.lstm_stack_fut_.HasInputs()
+   
     self.squash_relu_ = model.squash_relu
     self.binary_data_ = model.binary_data or model.squash_relu
     self.squash_relu_lambda_ = model.squash_relu_lambda
@@ -156,6 +165,7 @@ class LSTMCombo(object):
       dec = self.v_dec_.col_slice(t * self.num_dims_, (t+1) * self.num_dims_)
       v = self.v_.col_slice(t2 * self.num_dims_, (t2+1) * self.num_dims_)
       deriv = self.v_dec_deriv_.col_slice(t * self.num_dims_, (t+1) * self.num_dims_)
+      
       if self.binary_data_:
         cm.cross_entropy_bernoulli(v, dec, target=deriv)
       else:
@@ -166,6 +176,7 @@ class LSTMCombo(object):
       f = self.v_fut_.col_slice(t * self.num_dims_, (t+1) * self.num_dims_)
       v = self.v_.col_slice(t2 * self.num_dims_, (t2+1) * self.num_dims_)
       deriv = self.v_fut_deriv_.col_slice(t * self.num_dims_, (t+1) * self.num_dims_)
+      
       if self.binary_data_:
         cm.cross_entropy_bernoulli(v, f, target=deriv)
       else:
@@ -173,6 +184,7 @@ class LSTMCombo(object):
 
     loss_fut = 0
     loss_dec = 0
+    
     if self.binary_data_:
       if self.dec_seq_length_ > 0:
         loss_dec = self.v_dec_deriv_.sum()
@@ -201,8 +213,7 @@ class LSTMCombo(object):
         loss_dec += this_loss_dec / (batch_size * self.dec_seq_length_)
       if self.future_seq_length_ > 0:
         loss_fut += this_loss_fut / (batch_size * self.future_seq_length_)
-    #loss_dec /= num_batches
-    #loss_fut /= num_batches
+
     loss_dec = loss_dec / num_batches
     loss_fut = loss_fut / num_batches
     return loss_dec, loss_fut
@@ -251,6 +262,27 @@ class LSTMCombo(object):
     plt.draw()
     #plt.pause(0.1)
     plt.savefig(fname)
+
+  def Show(self, data, output_dir=None):
+    # get random batch from the data and displays the results
+    self.SetBatchSize(data)
+    data.Reset()
+
+    v_cpu, _ = data.GetBatch()
+    rand_index = randint(0, v_cpu.shape[0] - 1)
+
+    self.v_.overwrite(v_cpu)
+    self.Fprop()
+    rec = self.v_dec_.asarray()
+    fut = self.v_fut_.asarray()
+
+    # save or display the reconstructed/future predicted data
+    if output_dir is None:
+      output_file = None
+    else:
+      output_file = os.path.join(output_dir)
+
+    data.DisplayData(v_cpu, rec=rec, fut=fut, case_id=rand_index, output_file=output_file)
 
   def RunAndShow(self, data, output_dir=None, max_dataset_size=0):
     self.SetBatchSize(data)
@@ -352,17 +384,8 @@ def main():
   model = ReadModelProto(sys.argv[1])
   lstm_autoencoder = LSTMCombo(model)
   train_data = ChooseDataHandler(ReadDataProto(sys.argv[2]))
-  """
-  if int(sys.argv[3]) == '0':
-    valid_data = ChooseDataHandler(ReadDataProto(sys.argv[3]))
-  else:
-    valid_data = None
-  """
   valid_data = ChooseDataHandler(ReadDataProto(sys.argv[3]))
   lstm_autoencoder.Train(train_data, valid_data)
-  """
-  lstm_autoencoder.GradCheck()
-  """
 
 if __name__ == '__main__':
   # Set the board
@@ -373,4 +396,3 @@ if __name__ == '__main__':
   cm.CUDAMatrix.init_random(42)
   np.random.seed(42)
   main()
-  #FreeGPU(board)

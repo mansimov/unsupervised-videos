@@ -1,20 +1,20 @@
 name: "lstm_autoencoder"
 checkpoint_dir: "/ais/gobi3/u/emansim/unsupervised-videos/models"
-print_after: 100
+print_after: 10
 display_after: 0
-validate_after: 500
-save_after: 500
+validate_after: 100
+save_after: 0
 max_iters: 10000000
 dec_seq_length: 10
 future_seq_length: 10
 dec_conditional: true
 future_conditional: true
-binary_data: true
+binary_data: false
 lstm {
   name: "lstm_1_enc"
   num_hid: 2048
   has_input: true
-  input_dims: 4096
+  input_dims: 3072
   w_dense {
     init_type: UNIFORM
     scale: 0.01
@@ -61,8 +61,8 @@ lstm_dec {
   num_hid: 2048
   has_output: true
   has_input: true
-  output_dims: 4096
-  input_dims: 4096
+  output_dims: 3072
+  input_dims: 3072
   w_dense {
     init_type: UNIFORM
     scale: 0.01
@@ -129,8 +129,8 @@ lstm_future {
   num_hid: 2048
   has_output: true
   has_input: true
-  input_dims: 4096
-  output_dims: 4096
+  input_dims: 3072
+  output_dims: 3072
   w_dense {
     init_type: UNIFORM
     scale: 0.01

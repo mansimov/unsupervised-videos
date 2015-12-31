@@ -1,6 +1,5 @@
-dataset_type: BOUNCING_MNIST_FIXED
+dataset_type: VIDEO_PATCH
+data_file: "/ais/gobi3/u/emansim/unsupervised-videos/bouncing_mnist_test.npy"
 num_frames: 20
 batch_size: 80
 image_size: 64
-num_digits: 2
-step_length: 0.1

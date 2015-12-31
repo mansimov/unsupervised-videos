@@ -4,3 +4,4 @@ cudamat/*.pyc
 *.pyc
 playground.py
 *.pdf
+outputs/*

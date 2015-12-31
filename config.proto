@@ -16,6 +16,7 @@ message Data {
     UNLABELLED = 1;
     BOUNCING_MNIST = 2;
     BOUNCING_MNIST_FIXED = 3;
+    VIDEO_PATCH = 4;
   }
   optional DatasetType dataset_type = 9 [default=LABELLED];
 
@@ -24,7 +25,6 @@ message Data {
   optional int32 image_size = 10;
   optional int32 num_digits = 11;
   optional float step_length = 12;
-
 
   // Choose only some videos from the data.
   // Used for running on subsets.

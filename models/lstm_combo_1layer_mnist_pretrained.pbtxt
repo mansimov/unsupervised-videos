@@ -16,7 +16,9 @@ lstm {
   has_input: true
   input_dims: 4096
   w_dense {
-    init_type: UNIFORM
+    init_type: PRETRAINED
+    file_name: "/ais/gobi3/u/emansim/unsupervised-videos/models/lstm_autoencoder_20151230175240.h5"
+    dataset_name: "lstm_1_enc:w_dense"
     scale: 0.01
     epsilon: 0.0001
     momentum: 0.9
@@ -26,7 +28,9 @@ lstm {
     eps_decay_after: 10000
   }
   w_diag {
-    init_type: UNIFORM
+    init_type: PRETRAINED
+    file_name: "/ais/gobi3/u/emansim/unsupervised-videos/models/lstm_autoencoder_20151230175240.h5"
+    dataset_name: "lstm_1_enc:w_diag"
     scale: 0.1
     epsilon: 0.0001
     momentum: 0.9
@@ -36,7 +40,9 @@ lstm {
     eps_decay_after: 10000
   }
   b {
-    init_type: CONSTANT
+    init_type: PRETRAINED
+    file_name: "/ais/gobi3/u/emansim/unsupervised-videos/models/lstm_autoencoder_20151230175240.h5"
+    dataset_name: "lstm_1_enc:b"
     scale: 0.0
     epsilon: 0.0001
     momentum: 0.9
@@ -45,7 +51,9 @@ lstm {
     eps_decay_after: 10000
   }
   w_input {
-    init_type: UNIFORM
+    init_type: PRETRAINED
+    file_name: "/ais/gobi3/u/emansim/unsupervised-videos/models/lstm_autoencoder_20151230175240.h5"
+    dataset_name: "lstm_1_enc:w_input"
     scale: 0.01
     epsilon: 0.0001
     momentum: 0.9
@@ -64,7 +72,9 @@ lstm_dec {
   output_dims: 4096
   input_dims: 4096
   w_dense {
-    init_type: UNIFORM
+    init_type: PRETRAINED
+    file_name: "/ais/gobi3/u/emansim/unsupervised-videos/models/lstm_autoencoder_20151230175240.h5"
+    dataset_name: "lstm_1_dec:w_dense"
     scale: 0.01
     epsilon: 0.0001
     momentum: 0.9
@@ -74,7 +84,9 @@ lstm_dec {
     eps_decay_after: 10000
   }
   w_diag {
-    init_type: UNIFORM
+    init_type: PRETRAINED
+    file_name: "/ais/gobi3/u/emansim/unsupervised-videos/models/lstm_autoencoder_20151230175240.h5"
+    dataset_name: "lstm_1_dec:w_diag"
     scale: 0.1
     epsilon: 0.0001
     momentum: 0.9
@@ -84,7 +96,9 @@ lstm_dec {
     eps_decay_after: 10000
   }
   b {
-    init_type: CONSTANT
+    init_type: PRETRAINED
+    file_name: "/ais/gobi3/u/emansim/unsupervised-videos/models/lstm_autoencoder_20151230175240.h5"
+    dataset_name: "lstm_1_dec:b"
     scale: 0.0
     epsilon: 0.0001
     momentum: 0.9
@@ -93,7 +107,9 @@ lstm_dec {
     eps_decay_after: 10000
   }
    w_input {
-    init_type: UNIFORM
+    init_type: PRETRAINED
+    file_name: "/ais/gobi3/u/emansim/unsupervised-videos/models/lstm_autoencoder_20151230175240.h5"
+    dataset_name: "lstm_1_dec:w_input"
     scale: 0.01
     epsilon: 0.0001
     momentum: 0.9
@@ -104,7 +120,9 @@ lstm_dec {
   }
 
   w_output {
-    init_type: UNIFORM
+    init_type: PRETRAINED
+    file_name: "/ais/gobi3/u/emansim/unsupervised-videos/models/lstm_autoencoder_20151230175240.h5"
+    dataset_name: "lstm_1_dec:w_output"
     scale: 0.01
     epsilon: 0.0001
     momentum: 0.9
@@ -114,7 +132,9 @@ lstm_dec {
     eps_decay_after: 10000
   }
   b_output {
-    init_type: CONSTANT
+    init_type: PRETRAINED
+    file_name: "/ais/gobi3/u/emansim/unsupervised-videos/models/lstm_autoencoder_20151230175240.h5"
+    dataset_name: "lstm_1_dec:b_output"
     scale: 0.0
     epsilon: 0.0001
     momentum: 0.9
@@ -132,7 +152,9 @@ lstm_future {
   input_dims: 4096
   output_dims: 4096
   w_dense {
-    init_type: UNIFORM
+    init_type: PRETRAINED
+    file_name: "/ais/gobi3/u/emansim/unsupervised-videos/models/lstm_autoencoder_20151230175240.h5"
+    dataset_name: "lstm_1_fut:w_dense"
     scale: 0.01
     epsilon: 0.0001
     momentum: 0.9
@@ -142,7 +164,9 @@ lstm_future {
     eps_decay_after: 10000
   }
   w_diag {
-    init_type: UNIFORM
+    init_type: PRETRAINED
+    file_name: "/ais/gobi3/u/emansim/unsupervised-videos/models/lstm_autoencoder_20151230175240.h5"
+    dataset_name: "lstm_1_fut:w_diag"
     scale: 0.1
     epsilon: 0.0001
     momentum: 0.9
@@ -152,7 +176,9 @@ lstm_future {
     eps_decay_after: 10000
   }
   b {
-    init_type: CONSTANT
+    init_type: PRETRAINED
+    file_name: "/ais/gobi3/u/emansim/unsupervised-videos/models/lstm_autoencoder_20151230175240.h5"
+    dataset_name: "lstm_1_fut:b"
     scale: 0.0
     epsilon: 0.0001
     momentum: 0.9
@@ -161,7 +187,9 @@ lstm_future {
     eps_decay_after: 10000
   }
   w_input {
-    init_type: UNIFORM
+    init_type: PRETRAINED
+    file_name: "/ais/gobi3/u/emansim/unsupervised-videos/models/lstm_autoencoder_20151230175240.h5"
+    dataset_name: "lstm_1_fut:w_input"
     scale: 0.01
     epsilon: 0.0001
     momentum: 0.9
@@ -171,7 +199,9 @@ lstm_future {
     eps_decay_after: 10000
   }
   w_output {
-    init_type: UNIFORM
+    init_type: PRETRAINED
+    file_name: "/ais/gobi3/u/emansim/unsupervised-videos/models/lstm_autoencoder_20151230175240.h5"
+    dataset_name: "lstm_1_fut:w_output"
     scale: 0.01
     epsilon: 0.0001
     momentum: 0.9
@@ -181,7 +211,9 @@ lstm_future {
     eps_decay_after: 10000
   }
   b_output {
-    init_type: CONSTANT
+    init_type: PRETRAINED
+    file_name: "/ais/gobi3/u/emansim/unsupervised-videos/models/lstm_autoencoder_20151230175240.h5"
+    dataset_name: "lstm_1_fut:b_output"
     scale: 0.0
     epsilon: 0.0001
     momentum: 0.9

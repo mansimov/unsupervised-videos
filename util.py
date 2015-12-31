@@ -15,6 +15,7 @@ import datetime
 import time
 import config_pb2
 from google.protobuf import text_format
+from random import randint
 
 class Param(object):
   def __init__(self, w, config=None):

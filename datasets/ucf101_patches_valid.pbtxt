@@ -1,0 +1,6 @@
+dataset_type: VIDEO_PATCH
+data_file: "/ais/gobi3/u/emansim/unsupervised-videos/ucf101_valid_patches.npy"
+num_frames: 20
+batch_size: 100
+image_size: 32
+num_colors: 3
