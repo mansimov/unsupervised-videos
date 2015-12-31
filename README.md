@@ -37,15 +37,27 @@ wget http://www.cs.toronto.edu/~emansim/datasets/ucf101_sample_valid_patches.npy
 To train a sample model on this dataset you need to set correct `data_file` in `datasets/bouncing_mnist_valid.pbtxt` and then run (you may need to change the board id of gpu): 
 
 ```
-python lstm_combo.py models/lstm_combo_1layer_mnist.pbtxt datasets/bouncing_mnist.pbtxt datasets/bouncing_mnist.pbtxt 1
+python lstm_combo.py models/lstm_combo_1layer_mnist.pbtxt datasets/bouncing_mnist.pbtxt datasets/bouncing_mnist_valid.pbtxt 1
 ```
 
-To visualize the sample reconstruction and future prediction results of the pretrained model run
+After training the model and after setting correct path to weights in `models/lstm_combo_1layer_mnist_pretrained.pbtxt`, to visualize the sample reconstruction and future prediction results of the pretrained model run
 
 ```
 python display_results.py models/lstm_combo_1layer_mnist_pretrained.pbtxt 1
 ```
 
-The results should look like this:
+Below are the sample results, where first image is reference image and second image is model prediction. Note that first ten frames are reconstructions, whereas the last ten frames are future predictions.
+
+![original](imgs/mnist_1layer_example_original.png)
+![recon](imgs/mnist_1layer_example_recon.png)
+
 
 ### UCF-101 patches
+
+Due to the size 
+
+```
+python lstm_combo.py models/lstm_combo_1layer_ucf101_patches.pbtxt datasets/ucf101_patches.pbtxt datasets/ucf101_patches_valid.pbtxt 1
+```
+
+### Pretraining and Classification using high level representations ('percepts') of video frames

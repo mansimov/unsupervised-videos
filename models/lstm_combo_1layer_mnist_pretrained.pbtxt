@@ -1,4 +1,4 @@
-name: "lstm_autoencoder"
+name: "lstm_combo"
 checkpoint_dir: "/ais/gobi3/u/emansim/unsupervised-videos/models"
 print_after: 100
 display_after: 0
