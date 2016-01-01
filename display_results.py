@@ -8,7 +8,8 @@ def main():
   model = ReadModelProto(sys.argv[1])
   lstm_autoencoder = LSTMCombo(model)
   data = ChooseDataHandler(ReadDataProto(sys.argv[2]))
-  lstm_autoencoder.Show(data, output_dir='./imgs/mnist_1layer_example.pdf')
+  #lstm_autoencoder.Show(data, output_dir='./imgs/mnist_1layer_example.pdf')
+  lstm_autoencoder.Show(data, output_dir='./imgs/ucf101_1layer_example.pdf')
 
 if __name__ == '__main__':
   # Set the board

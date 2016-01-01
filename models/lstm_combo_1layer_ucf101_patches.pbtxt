@@ -1,10 +1,10 @@
 name: "lstm_combo"
 checkpoint_dir: "/ais/gobi3/u/emansim/unsupervised-videos/models"
-print_after: 10
+print_after: 100
 display_after: 0
-validate_after: 100
-save_after: 0
-max_iters: 10000000
+validate_after: 500
+save_after: 500
+max_iters: 100000
 dec_seq_length: 10
 future_seq_length: 10
 dec_conditional: true

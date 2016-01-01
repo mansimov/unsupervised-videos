@@ -79,6 +79,7 @@ class LSTM(object):
     output_slice = self.state_[t]
     gates = output_slice.col_slice(2 * num_lstms, 6 * num_lstms)
     lstm_state_computed = False
+    
     if t == 0:
       if init_state is None:
         input_slice = self.state_[0]
@@ -94,6 +95,7 @@ class LSTM(object):
     else:
       input_slice = self.state_[t-1]
       init = False
+    
     if self.has_input_ and input_frame is not None and not lstm_state_computed:
       if self.input_dropprob_ > 0 and train:
         mask = self.input_drop_mask_[t]
@@ -105,6 +107,7 @@ class LSTM(object):
         cm.dot(intermediate_state, self.w_input_.GetW().T, target=gates)
       else:
         cm.dot(input_frame, self.w_input_.GetW().T, target=gates)
+    
     if not lstm_state_computed:
       cm.lstm_fprop(input_slice, output_slice,
                     self.w_dense_.GetW(), self.w_diag_.GetW(), self.b_.GetW(),
@@ -113,6 +116,7 @@ class LSTM(object):
     if self.has_output_:
       assert output_frame is not None
       state = output_slice.col_slice(0, num_lstms)
+      
       if self.output_dropprob_ > 0 and train:
         mask = self.output_drop_mask_[t]
         intermediate_state = self.output_intermediate_state_[t]
@@ -124,6 +128,7 @@ class LSTM(object):
       else:
         cm.dot(state, self.w_output_.GetW().T, target=output_frame)
       output_frame.add_row_vec(self.b_output_.GetW())
+    
     self.t_ += 1
 
   def BpropAndOutp(self, input_frame=None, input_deriv=None,

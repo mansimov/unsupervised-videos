@@ -10,8 +10,6 @@ def ChooseDataHandler(data_pb):
     return UnlabelledDataHandler(data_pb)
   elif data_pb.dataset_type == config_pb2.Data.BOUNCING_MNIST:
     return BouncingMNISTDataHandler(data_pb)
-  elif data_pb.dataset_type == config_pb2.Data.BOUNCING_MNIST_FIXED:
-    return BouncingMNISTFixedDataHandler(data_pb)
   elif data_pb.dataset_type == config_pb2.Data.VIDEO_PATCH:
     return VideoPatchDataHandler(data_pb)
   else:
@@ -503,6 +501,7 @@ class VideoPatchDataHandler(object):
     self.batch_size_ = data_pb.batch_size
     self.image_size_ = data_pb.image_size
     self.data_file_ = data_pb.data_file
+    self.num_frames_ = data_pb.num_frames
     self.num_colors_ = data_pb.num_colors
 
     self.is_color_ = False
@@ -515,7 +514,8 @@ class VideoPatchDataHandler(object):
       self.frame_size_ = self.image_size_ ** 2
 
     try:
-      self.data_ = np.float32(np.load(self.data_file_)) / 255.
+      self.data_ = np.float32(np.load(self.data_file_))
+      self.data_ = self.data_ / 255.  
     except:
       print 'Please set the correct path to the dataset'
       sys.exit()
@@ -559,15 +559,21 @@ class VideoPatchDataHandler(object):
     
     # get data
     if self.is_color_:
-      data = data[case_id, :].reshape(-1, 3, self.image_size_, self.image_size_)
+      data = data[case_id, :]
+      data[data>1.] = 1.
+      data[data<0.] = 0.
+      data = data.reshape(-1, 3, self.image_size_, self.image_size_)
       data = data.transpose(0, 2, 3, 1)
     else:
       data = data[case_id, :].reshape(-1, self.image_size_, self.image_size_)
 
-    # get reconstruction and future sequences if exist
+    # get reconstruction and future sequences if they exist
     if rec is not None:
       if self.is_color_:
-        rec = rec[case_id, :].reshape(-1, 3, self.image_size_, self.image_size_)  
+        rec = rec[case_id, :]
+        rec[rec>1.] = 1.
+        rec[rec<0.] = 0.
+        rec = rec.reshape(-1, 3, self.image_size_, self.image_size_)  
         rec = rec.transpose(0, 2, 3, 1)
       else:     
         rec = rec[case_id, :].reshape(-1, self.image_size_, self.image_size_)
@@ -575,7 +581,10 @@ class VideoPatchDataHandler(object):
 
     if fut is not None:
       if self.is_color_:
-        fut = fut[case_id, :].reshape(-1, 3, self.image_size_, self.image_size_)
+        fut = fut[case_id, :]
+        fut[fut>1.] = 1.
+        fut[fut<0.] = 0.
+        fut = fut.reshape(-1, 3, self.image_size_, self.image_size_)
         fut = fut.transpose(0, 2, 3, 1)
       else:     
         fut = fut[case_id, :].reshape(-1, self.image_size_, self.image_size_)
@@ -586,7 +595,7 @@ class VideoPatchDataHandler(object):
     
     num_rows = 1
     # create figure for original sequence
-    plt.figure(2*fig, figsize=(20, 1))
+    plt.figure(2*fig, figsize=(self.num_frames_, 1))
     plt.clf()
     for i in xrange(self.seq_length_):
       plt.subplot(num_rows, self.seq_length_, i+1)
@@ -601,7 +610,7 @@ class VideoPatchDataHandler(object):
       plt.savefig(output_file1, bbox_inches='tight')
 
     # create figure for reconstuction and future sequences
-    plt.figure(2*fig+1, figsize=(20, 1))
+    plt.figure(2*fig+1, figsize=(self.num_frames_, 1))
     plt.clf()
     for i in xrange(self.seq_length_):
       if rec is not None and i < enc_seq_length:
@@ -623,118 +632,3 @@ class VideoPatchDataHandler(object):
       plt.savefig(output_file2, bbox_inches='tight')
     else:
       plt.pause(0.1)
-
-
-# Bouncing MNIST data handler which is used for validation/testing
-class BouncingMNISTFixedDataHandler(object):
-  def __init__(self, data_pb):
-    self.seq_length_ = data_pb.num_frames
-    self.batch_size_ = data_pb.batch_size
-    self.image_size_ = data_pb.image_size
-    self.num_digits_ = data_pb.num_digits
-    self.step_length_ = data_pb.step_length
-    self.digit_size_ = 28
-    self.frame_size_ = self.image_size_ ** 2
-
-    try:
-      self.data_ = np.float32(np.load('/ais/gobi3/u/emansim/unsupervised-videos/mnist_test_seq.npy')) / 255.
-    except:
-      print 'Please set the correct path to Bouncing MNIST test sequence'
-      print 'The details are in documentation'
-      sys.exit()
-
-    print self.data_.shape
-    self.dataset_size_ = self.data_.shape[0]  # The dataset is really infinite. This is just for validation.
-
-    self.row_ = 0
-
-  def GetBatchSize(self):
-    return self.batch_size_
-
-  def GetDims(self):
-    return self.frame_size_
-
-  def GetDatasetSize(self):
-    return self.dataset_size_
-
-  def GetSeqLength(self):
-    return self.seq_length_
-
-  def Reset(self):
-    self.row_ = 0
-    pass
-
-  def GetBatch(self, verbose=False):
-    minibatch = self.data_[self.row_:self.row_+self.batch_size_]    
-    self.row_ = self.row_ + self.batch_size_
-    
-    if self.row_ == self.data_.shape[0]:
-      self.row_ = 0
-    
-    return minibatch.reshape(minibatch.shape[0], -1), None
-
-  def DisplayData(self, data, rec=None, fut=None, fig=1, case_id=0, output_file=None):
-    output_file1 = None
-    output_file2 = None
-    
-    if output_file is not None:
-      name, ext = os.path.splitext(output_file)
-      output_file1 = '%s_original%s' % (name, ext)
-      output_file2 = '%s_recon%s' % (name, ext)
-    
-    # get data
-    data = data[case_id, :].reshape(-1, self.image_size_, self.image_size_)
-    # get reconstruction and future sequences if exist
-    if rec is not None:
-      rec = rec[case_id, :].reshape(-1, self.image_size_, self.image_size_)
-      enc_seq_length = rec.shape[0]
-    if fut is not None:
-      fut = fut[case_id, :].reshape(-1, self.image_size_, self.image_size_)
-      if rec is None:
-        enc_seq_length = self.seq_length_ - fut.shape[0]
-      else:
-        assert enc_seq_length == self.seq_length_ - fut.shape[0]
-    
-    num_rows = 1
-    # create figure for original sequence
-    plt.figure(2*fig, figsize=(20, 1))
-    plt.clf()
-    for i in xrange(self.seq_length_):
-      plt.subplot(num_rows, self.seq_length_, i+1)
-      plt.imshow(data[i, :, :], cmap=plt.cm.gray, interpolation="nearest")
-      plt.axis('off')
-    plt.draw()
-    if output_file1 is not None:
-      print output_file1
-      plt.savefig(output_file1, bbox_inches='tight')
-
-    # create figure for reconstuction and future sequences
-    plt.figure(2*fig+1, figsize=(20, 1))
-    plt.clf()
-    for i in xrange(self.seq_length_):
-      if rec is not None and i < enc_seq_length:
-        plt.subplot(num_rows, self.seq_length_, i + 1)
-        plt.imshow(rec[rec.shape[0] - i - 1, :, :], cmap=plt.cm.gray, interpolation="nearest")
-      if fut is not None and i >= enc_seq_length:
-        plt.subplot(num_rows, self.seq_length_, i + 1)
-        plt.imshow(fut[i - enc_seq_length, :, :], cmap=plt.cm.gray, interpolation="nearest")
-      plt.axis('off')
-    plt.draw()
-    if output_file2 is not None:
-      print output_file2
-      plt.savefig(output_file2, bbox_inches='tight')
-    else:
-      plt.pause(0.1)
-
-def main():
-  data_pb = ReadDataProto(sys.argv[1])
-  dh = ChooseDataHandler(data_pb)
-  dataset_size = dh.GetDatasetSize()
-  batch_size = dh.GetBatchSize()
-  num_batches = dataset_size / batch_size
-  for i in xrange(num_batches):
-    data, _ = dh.GetBatch()
-    dh.DisplayData(data)
-
-if __name__ == '__main__':
-  main()

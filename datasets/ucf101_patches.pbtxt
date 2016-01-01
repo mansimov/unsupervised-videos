@@ -1,5 +1,5 @@
 dataset_type: VIDEO_PATCH
-data_file: "/ais/gobi3/u/emansim/unsupervised-videos/ucf101_train_patches.npy"
+data_file: "/ais/gobi3/u/emansim/unsupervised-videos/ucf101_sample_train_patches.npy"
 num_frames: 20
 batch_size: 100
 image_size: 32
