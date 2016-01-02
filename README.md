@@ -2,7 +2,7 @@
 
 Code for paper [Unsupervised Learning of Video Representations using LSTMs](http://arxiv.org/abs/1502.04681) by Nitish Srivastava, Elman Mansimov, Ruslan Salakhutdinov; ICML 2015.
 
-We use multilayer Long Short Term Memory (LSTM) networks to learn representations of video sequences. The representation can be used to perform different tasks, such as reconstructing the input sequence, predicting the future sequence, or for classification. Example:
+We use multilayer Long Short Term Memory (LSTM) networks to learn representations of video sequences. The representation can be used to perform different tasks, such as reconstructing the input sequence, predicting the future sequence, or for classification. Examples:
 
 ![mnist gif1](http://i.giphy.com/3o6UBnVC6wIj3NdJOE.gif)
 ![mnist gif2](http://i.giphy.com/3o6UB3eAZxybAFG0iA.gif)
@@ -17,8 +17,8 @@ To compile cudamat library you need to modify `CUDA_ROOT` in `cudamat/Makefile` 
 
 The libraries you need to install are:
 
-* h5py
-* google.protobuf
+* h5py (HDF5 (>= 1.8.11))
+* google.protobuf (Protocol Buffers (>= 2.5.0))
 * numpy
 * matplotlib
 
@@ -28,13 +28,19 @@ Next compile .proto file by calling
 protoc -I=./ --python_out=./ config.proto
 ```
 
-You will also need to download the dataset files. These can be obtained by running
+Depending on the task, you would need to download the following dataset files. These can be obtained by running:
 
 ```
 wget http://www.cs.toronto.edu/~emansim/datasets/mnist.h5
 wget http://www.cs.toronto.edu/~emansim/datasets/bouncing_mnist_test.npy
 wget http://www.cs.toronto.edu/~emansim/datasets/ucf101_sample_train_patches.npy
 wget http://www.cs.toronto.edu/~emansim/datasets/ucf101_sample_valid_patches.npy
+wget http://www.cs.toronto.edu/~emansim/datasets/ucf101_sample_train_features.h5
+wget http://www.cs.toronto.edu/~emansim/datasets/ucf101_sample_train_labels.txt
+wget http://www.cs.toronto.edu/~emansim/datasets/ucf101_sample_train_num_frames.txt
+wget http://www.cs.toronto.edu/~emansim/datasets/ucf101_sample_valid_features.h5
+wget http://www.cs.toronto.edu/~emansim/datasets/ucf101_sample_valid_labels.txt
+wget http://www.cs.toronto.edu/~emansim/datasets/ucf101_sample_valid_num_frames.txt
 ```
 
 **Note to Toronto users:** You don't need to download any files, as they are available in my gobi3 repository and are already set up.
@@ -47,13 +53,13 @@ To train a sample model on this dataset you need to set correct `data_file` in `
 python lstm_combo.py models/lstm_combo_1layer_mnist.pbtxt datasets/bouncing_mnist.pbtxt datasets/bouncing_mnist_valid.pbtxt 1
 ```
 
-After training the model and after setting correct path to weights in `models/lstm_combo_1layer_mnist_pretrained.pbtxt`, to visualize the sample reconstruction and future prediction results of the pretrained model run
+After training the model and setting correct path to trained weights in `models/lstm_combo_1layer_mnist_pretrained.pbtxt`, you can visualize the sample reconstruction and future prediction results of the pretrained model by running:
 
 ```
 python display_results.py models/lstm_combo_1layer_mnist_pretrained.pbtxt datasets/bouncing_mnist_valid.pbtxt 1
 ```
 
-Below are the sample results, where first image is reference image and second image is model prediction. Note that first ten frames are reconstructions, whereas the last ten frames are future predictions.
+Below are the sample results, where first image is reference image and second image is prediction of the model. Note that first ten frames are reconstructions, whereas the last ten frames are future predictions.
 
 ![original](imgs/mnist_1layer_example_original.png)
 ![recon](imgs/mnist_1layer_example_recon.png)
@@ -63,13 +69,13 @@ Below are the sample results, where first image is reference image and second im
 
 Due to the size constraints, I only managed to upload a small sample dataset of UCF-101 patches. The trained model is overfitting, so this example is just meant for instructional purposes. The setup is the same as in Bouncing MNIST dataset.
 
-To train run:
+To train the model run:
 
 ```
 python lstm_combo.py models/lstm_combo_1layer_ucf101_patches.pbtxt datasets/ucf101_patches.pbtxt datasets/ucf101_patches_valid.pbtxt 1
 ```
 
-To see results run:
+To see the results run:
 
 ```
 python display_results.py models/lstm_combo_1layer_ucf101_pretrained.pbtxt datasets/ucf101_patches_valid.pbtxt 1

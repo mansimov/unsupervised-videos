@@ -215,7 +215,7 @@ class LSTMClassifier(object):
         else:
           best_val_loss = False
         temp_loss = 0
-        sys.stdout.write(' Valid Acc %.5f %.5f' % (valid_loss, valid_loss_pooled))
+        sys.stdout.write(' Valid Acc %.5f ; Pooled Valid Acc %.5f' % (valid_loss, valid_loss_pooled))
         newline = True
 
       if save and ii % save_after == 0:

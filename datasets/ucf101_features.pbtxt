@@ -4,5 +4,5 @@ labels_file: "/ais/gobi3/u/emansim/unsupervised-videos/ucf101_sample_train_label
 num_frames_file : "/ais/gobi3/u/emansim/unsupervised-videos/ucf101_sample_train_num_frames.txt"
 num_frames: 16
 stride: 1
-randomize: false
+randomize: true
 batch_size: 128
