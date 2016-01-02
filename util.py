@@ -17,6 +17,7 @@ import config_pb2
 from google.protobuf import text_format
 from random import randint
 
+# Parameter is preety much a weight (consisting of weights and derivatives of weights)
 class Param(object):
   def __init__(self, w, config=None):
     if type(w) == np.ndarray:
@@ -138,20 +139,7 @@ def WritePbtxt(proto, fname):
     text_format.PrintMessage(proto, f)
 
 def LockGPU(max_retries=10, board=-1):
-  """
-  retry_count = 0
-  while board == -1 and retry_count < max_retries:
-    board = gpu_lock.obtain_lock_id()
-    if board == -1:
-      sleep(1)
-      retry_count += 1
-  if board == -1:
-    print 'No GPU board available.'
-    sys.exit(1)
-  else:
-    cm.cuda_set_device(board)
-    cm.cublas_init()
-  """
+
   # Assuming you already got GPU lock
   cm.cuda_set_device(board)
   cm.cublas_init()
