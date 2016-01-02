@@ -4,8 +4,8 @@ Code for paper [Unsupervised Learning of Video Representations using LSTMs](http
 
 We use multilayer Long Short Term Memory (LSTM) networks to learn representations of video sequences. The representation can be used to perform different tasks, such as reconstructing the input sequence, predicting the future sequence, or for classification. Example:
 
-![mnist gif1](http://i.giphy.com/3o6UBgZkWz03NvkOWY.gif)
-![mnist gif2](http://i.giphy.com/3o6UB0fj56gS5xSDtu.gif)
+![mnist gif1](http://i.giphy.com/3o6UBnVC6wIj3NdJOE.gif)
+![mnist gif2](http://i.giphy.com/3o6UB3eAZxybAFG0iA.gif)
 ![ucf101 gif1](http://i.giphy.com/xT77XRpXgmjMzRzxSg.gif)
 ![ucf101 gif2](http://i.giphy.com/xT77Y5wbpQk0ScfXeE.gif)
 
