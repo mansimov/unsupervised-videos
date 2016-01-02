@@ -1,0 +1,66 @@
+name: "lstm_classifier"
+checkpoint_dir: "/ais/gobi3/u/emansim/unsupervised-videos/models"
+print_after: 100
+display_after: 0
+validate_after: 500
+save_after: 0
+max_iters: 1000000
+lstm {
+  name: "lstm_1"
+  num_hid: 2048
+  has_input: true
+  has_output: true
+  input_dims: 4096
+  output_dims: 101
+  input_dropprob: 0.0
+  output_dropprob: 0.0
+  w_dense {
+    init_type: UNIFORM
+    scale: 0.01
+    epsilon: 0.0001
+    l2_decay: 0.00001
+    gradient_clip: 0.0
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  w_diag {
+    init_type: UNIFORM
+    scale: 0.0
+    epsilon: 0.0
+    gradient_clip: 0.0
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  b {
+    init_type: CONSTANT
+    scale: 0.0
+    epsilon: 0.0001
+    gradient_clip: 0.0
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  w_input {
+    init_type: UNIFORM
+    scale: 0.001
+    epsilon: 0.0001
+    l2_decay: 0.00001
+    gradient_clip: 0.0
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  w_output {
+    init_type: GAUSSIAN
+    scale: 0.001
+    epsilon: 0.0001
+    l2_decay: 0.00001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+  b_output {
+    init_type: CONSTANT
+    scale: 0.0
+    epsilon: 0.0001
+    eps_decay_factor: 0.9
+    eps_decay_after: 10000
+  }
+}

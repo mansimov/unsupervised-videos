@@ -1,6 +1,5 @@
 from data_handler import *
 import lstm
-import logreg
 import datetime
 
 class LSTMClassifier(object):
@@ -19,6 +18,7 @@ class LSTMClassifier(object):
       self.lstm_stack_.Load(f)
       f.close()
 
+  # used to check if gradient fucntion was implemented correctly
   def GradCheck(self):
     eps = 0.01
     tol = 1e-3
@@ -68,14 +68,16 @@ class LSTMClassifier(object):
     num_models = self.lstm_stack_.GetNumModels()
     self.lstm_stack_.Reset()
     for t in xrange(self.seq_length_):
+      # slice input and output at timestep t and get probabilities
       i = self.v_.col_slice(t * self.num_dims_, (t+1) * self.num_dims_)
       o = self.o_.col_slice(t * self.num_output_dims_, (t+1) * self.num_output_dims_)
       self.lstm_stack_.Fprop(input_frame=i, output_frame=o, train=train)
       o.apply_softmax_row_major()
 
+  # compute derivative only for softmax
   def ComputeDeriv(self):
     for t in xrange(self.seq_length_):
-      o       = self.o_.col_slice(t * self.num_output_dims_, (t+1) * self.num_output_dims_)
+      o = self.o_.col_slice(t * self.num_output_dims_, (t+1) * self.num_output_dims_)
       o_deriv = self.o_deriv_.col_slice(t * self.num_output_dims_, (t+1) * self.num_output_dims_)
       o.apply_softmax_grad_row_major(self.target_, target=o_deriv)
 
@@ -131,6 +133,7 @@ class LSTMClassifier(object):
     correct, pooled_correct = data.GetResults(preds)
     return correct, pooled_correct
 
+  # Note that both train and valid should have the same batch_size
   def SetBatchSize(self, batch_size, seq_length):
     self.batch_size_ = batch_size
     self.seq_length_ = seq_length
@@ -179,19 +182,16 @@ class LSTMClassifier(object):
       newline = False
       sys.stdout.write('\rStep %d' % ii)
       sys.stdout.flush()
-      #t1 = datetime.datetime.now()
+
       v_cpu, t_cpu = train_data.GetBatch()
       self.v_.overwrite(v_cpu)
       self.target_.overwrite(t_cpu)
-      #t2 = datetime.datetime.now()
-      #print '\nCopying to gpu took ' + str(t2 - t1)
 
       self.Fprop(train=True)
 
       # Compute Performance.
       loss += self.GetLoss() / batch_size
-      #t1 = datetime.datetime.now()
-      #print 'Computing Loss took ' + str(t1 - t2)
+
       if ii % print_after == 0:
         loss /= print_after
         sys.stdout.write(' Acc %.5f' % loss)
@@ -199,6 +199,7 @@ class LSTMClassifier(object):
         loss = 0
         newline = True
 
+      # compute derivatives for softmax -> compute derivatives for lstm layers
       self.ComputeDeriv()
       self.BpropAndOutp()
       self.Update()
@@ -206,8 +207,7 @@ class LSTMClassifier(object):
       if display and ii % display_after == 0:
         self.lstm_stack_.Display()
 
-      if validate and (ii % validate_after == 0 or temp_loss >= 0.994):
-      #if validate and ii % validate_after == 0:
+      if validate and ii % validate_after == 0:
         valid_loss, valid_loss_pooled = self.Validate(valid_data)
         if valid_loss_pooled > temp_valid_loss:
           best_val_loss = True
@@ -229,27 +229,17 @@ class LSTMClassifier(object):
     sys.stdout.write('\n')
 
 def main():
-  model      = ReadModelProto(sys.argv[1])
+  model = ReadModelProto(sys.argv[1])
   lstm_classifier = LSTMClassifier(model)
   train_data = DataHandler(ReadDataProto(sys.argv[2]))
-  """
-  if len(sys.argv) > 3:
-    valid_data = DataHandler(ReadDataProto(sys.argv[3]))
-  else:
-    valid_data = None
-  """
   valid_data = DataHandler(ReadDataProto(sys.argv[3]))
   lstm_classifier.Train(train_data, valid_data)
-  """
-  lstm_classifier.GradCheck()
-  """
 
 if __name__ == '__main__':
-  #pdb.set_trace()
   board_id = int(sys.argv[4])
   board = LockGPU(board=board_id)
   print 'Using board', board
+  
   cm.CUDAMatrix.init_random(42)
   np.random.seed(42)
   main()
-  #FreeGPU(board)

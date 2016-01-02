@@ -2,6 +2,13 @@
 
 Code for paper [Unsupervised Learning of Video Representations using LSTMs](http://arxiv.org/abs/1502.04681) by Nitish Srivastava, Elman Mansimov, Ruslan Salakhutdinov; ICML 2015.
 
+We use multilayer Long Short Term Memory (LSTM) networks to learn representations of video sequences. The representation can be used to perform different tasks, such as reconstructing the input sequence, predicting the future sequence, or for classification. Example:
+
+![mnist gif1](http://i.giphy.com/3o6UBgZkWz03NvkOWY.gif)
+![mnist gif2](http://i.giphy.com/3o6UB0fj56gS5xSDtu.gif)
+![ucf101 gif1](http://i.giphy.com/xT77XRpXgmjMzRzxSg.gif)
+![ucf101 gif2](http://i.giphy.com/xT77Y5wbpQk0ScfXeE.gif)
+
 Note that the code at [this link](http://www.cs.toronto.edu/~nitish/unsupervised_video/) is deprecated.
 
 ### Getting Started
@@ -28,7 +35,6 @@ wget http://www.cs.toronto.edu/~emansim/datasets/mnist.h5
 wget http://www.cs.toronto.edu/~emansim/datasets/bouncing_mnist_test.npy
 wget http://www.cs.toronto.edu/~emansim/datasets/ucf101_sample_train_patches.npy
 wget http://www.cs.toronto.edu/~emansim/datasets/ucf101_sample_valid_patches.npy
-wget http://www.cs.toronto.edu/~emansim/datasets/ucf101_sample_train_patches_meanstd.h5
 ```
 
 **Note to Toronto users:** You don't need to download any files, as they are available in my gobi3 repository and are already set up.
@@ -53,9 +59,7 @@ Below are the sample results, where first image is reference image and second im
 ![recon](imgs/mnist_1layer_example_recon.png)
 
 
-### UCF-101 patches
-
-# TODO LOOK AT NORMALIZATION
+### Video patches
 
 Due to the size constraints, I only managed to upload a small sample dataset of UCF-101 patches. The trained model is overfitting, so this example is just meant for instructional purposes. The setup is the same as in Bouncing MNIST dataset.
 
@@ -76,3 +80,21 @@ python display_results.py models/lstm_combo_1layer_ucf101_pretrained.pbtxt datas
 
 ### Classification using high level representations ('percepts') of video frames
 
+Again, as in the case of UCF-101 patches, I was able to upload a very small subset of fc6 features of video frames extracted using VGG network. To train the classifier run:
+
+```
+python lstm_classifier.py models/lstm_classifier_1layer_ucf101_features.pbtxt datasets/ucf101_features.pbtxt datasets/ucf101_features_valid.pbtxt 1
+```
+
+### Reference
+
+If you found this code or our paper useful, please consider citing the following paper:
+
+```
+@inproceedings{srivastava15_unsup_video,
+  author    = {Nitish Srivastava and Elman Mansimov and Ruslan Salakhutdinov},
+  title     = {Unsupervised Learning of Video Representations using {LSTM}s},
+  booktitle = {ICML},
+  year      = {2015}
+}
+```

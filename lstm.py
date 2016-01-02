@@ -1,6 +1,6 @@
 from util import *
 
-# LSTM class
+# LSTM layer
 class LSTM(object):
   def __init__(self, lstm_config):
     self.name_ = lstm_config.name
@@ -17,14 +17,17 @@ class LSTM(object):
     self.t_ = 0
 
     print num_lstms
+    # diag are peephole connections from cell state to diffent gates
     self.w_dense_  = Param((4 * num_lstms, num_lstms), lstm_config.w_dense)
     self.w_diag_   = Param((1, 3 * num_lstms), lstm_config.w_diag)
     self.b_        = Param((1, 4 * num_lstms), lstm_config.b)
+    
     self.param_list_ = [
       ('%s:w_dense' % self.name_, self.w_dense_),
       ('%s:w_diag'  % self.name_, self.w_diag_),
       ('%s:b'       % self.name_, self.b_),
     ]
+    
     if self.has_input_:
       assert self.input_dims_ > 0
       self.w_input_ = Param((4 * num_lstms, self.input_dims_), lstm_config.w_input)
@@ -53,6 +56,7 @@ class LSTM(object):
     self.state_ = [cm.empty((batch_size, 6 * self.num_lstms_)) for i in xrange(seq_length)]
     self.deriv_ = [cm.empty((batch_size, 6 * self.num_lstms_)) for i in xrange(seq_length)]
 
+    # dropout mask
     if self.has_output_ and self.output_dropprob_ > 0:
       self.output_drop_mask_ = [cm.empty((batch_size, self.num_lstms_)) for i in xrange(seq_length)]
       self.output_intermediate_state_ = [cm.empty((batch_size, self.num_lstms_)) for i in xrange(seq_length)]
@@ -96,6 +100,7 @@ class LSTM(object):
       input_slice = self.state_[t-1]
       init = False
     
+    # input to LSTM
     if self.has_input_ and input_frame is not None and not lstm_state_computed:
       if self.input_dropprob_ > 0 and train:
         mask = self.input_drop_mask_[t]
@@ -108,11 +113,13 @@ class LSTM(object):
       else:
         cm.dot(input_frame, self.w_input_.GetW().T, target=gates)
     
+    # internal LSTM state computations
     if not lstm_state_computed:
       cm.lstm_fprop(input_slice, output_slice,
                     self.w_dense_.GetW(), self.w_diag_.GetW(), self.b_.GetW(),
                     use_relu=self.use_relu_, init=init)
 
+    # LSTM to output
     if self.has_output_:
       assert output_frame is not None
       state = output_slice.col_slice(0, num_lstms)
@@ -131,6 +138,8 @@ class LSTM(object):
     
     self.t_ += 1
 
+  # Bprop for getting gradients
+  # Outp for updating weights
   def BpropAndOutp(self, input_frame=None, input_deriv=None,
                    init_state=None, init_deriv=None, output_deriv=None, copy_init_state=True):
     self.t_ -= 1
@@ -142,6 +151,7 @@ class LSTM(object):
     output_slice_h = self.state_[t]
     output_slice_d = self.deriv_[t]
 
+    # set gradients to zero
     if t == self.seq_length_ - 1:
       if self.has_output_:
         self.w_output_.GetdW().assign(0)
@@ -293,6 +303,7 @@ class LSTM(object):
   def GetOutputDims(self):
     return self.output_dims_
 
+# LSTMStack is a stack of different lstm layers
 class LSTMStack(object):
   def __init__(self):
     self.models_ = []

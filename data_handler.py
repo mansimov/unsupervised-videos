@@ -16,7 +16,8 @@ def ChooseDataHandler(data_pb):
     raise Exception('Unknown DatasetType.')
 
 class DataHandler(object):
-  """Handling labelled datasets"""
+  """Handling labelled datasets. 
+    Input could be anything from features of convolutional net to raw pixels."""
    
   def __init__(self, data_pb):
     self.data_ = h5py.File(data_pb.data_file)[data_pb.dataset_name]
@@ -30,6 +31,7 @@ class DataHandler(object):
     self.patch_size_y_ = data_pb.patch_size_y
     self.sample_times_ = data_pb.sample_times
     self.num_colors_   = data_pb.num_colors
+    
     if self.image_size_x_ == 0:
       self.image_size_x_ = 1
     if self.image_size_y_ == 0:
@@ -87,6 +89,7 @@ class DataHandler(object):
     self.batch_data_  = np.zeros((self.batch_size_, self.seq_length_ * self.frame_size_), dtype=np.float32)
     self.batch_label_ = np.zeros((self.batch_size_, 1), dtype=np.float32)
 
+  # Get the boundaries (start index and end index) of each video
   def GetBoundaries(self, filename):
     boundaries = []
     num_frames = []
@@ -130,6 +133,7 @@ class DataHandler(object):
     if self.randomize_:
       np.random.shuffle(self.frame_indices_)
 
+  # Crop the patch from image frame
   def Crop(self, data, num_crops=1):
     d = data.reshape((data.shape[0], self.num_colors_, self.image_size_y_, self.image_size_x_))
     if self.x_slack_ > 0:
@@ -178,20 +182,16 @@ class DataHandler(object):
     assert predictions.shape[0] == self.dataset_size_
     start = 0
     pooled_correct = 0
-    #flow_pooled_correct = 0
     correct = 0
-    #flow_predictions = np.load('/ais/gobi3/u/nitish/UCF/reps/split1/flow_result.npy')
-    #assert flow_predictions.shape == (self.num_videos_, predictions.shape[1])
+
+    # pooled_pred are averaged results for all selected frames in the video
     for i in xrange(self.num_videos_):
       end = start + 1 + max(0, (self.num_frames_[i] - self.seq_length_)/self.seq_stride_)
       correct += (predictions[start:end, :].argmax(axis=1) == self.labels_[i]).sum()
       pooled_pred = predictions[start:end, :].mean(axis=0)
-      #avg_pooled_pred = (pooled_pred + 2 * flow_predictions[i, :])/3
       pooled_correct += pooled_pred.argmax() == self.labels_[i]
-      #flow_pooled_correct += avg_pooled_pred.argmax() == self.labels_[i]
       start = end
     return correct / float(self.dataset_size_), pooled_correct / float(self.num_videos_)
-    #return flow_pooled_correct / float(self.num_videos_), pooled_correct / float(self.num_videos_)
   
   def DisplayData(self, data, rec=None, fut=None, fig=1, case_id=0, output_file=None):
     name, ext = os.path.splitext(output_file)
@@ -206,7 +206,7 @@ class DataHandler(object):
       im2 = np.zeros((self.patch_size_y_, self.patch_size_x_, self.num_colors_), dtype=np.uint8)
       rec_length = r.shape[0] if rec is not None else 0
       fut_length = f.shape[0] if fut is not None else 0
-      plt.figure(2*fig, figsize=(20, 1))
+      plt.figure(2*fig, figsize=(self.seq_length_, 1))
       plt.clf()
       for i in xrange(self.seq_length_):
         for j in xrange(self.num_colors_):
@@ -218,7 +218,7 @@ class DataHandler(object):
 
       print output_file1
       plt.savefig(output_file1, bbox_inches='tight')
-      plt.figure(2*fig+1, figsize=(20, 1))
+      plt.figure(2*fig+1, figsize=(self.seq_length_, 1))
       plt.clf()
       for i in xrange(self.seq_length_):
         for j in xrange(self.num_colors_):
@@ -252,6 +252,9 @@ class DataHandler(object):
         plt.savefig(output_file, bbox_inches='tight')
 
 class UnlabelledDataHandler(object):
+  """Handling unlabelled datasets.
+     Generalizes VideoPatchDataHandler."""
+  
   def __init__(self, data_pb):
     self.seq_length_ = data_pb.num_frames
     self.seq_stride_ = data_pb.stride
