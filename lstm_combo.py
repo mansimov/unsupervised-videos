@@ -76,8 +76,12 @@ class LSTMCombo(object):
     for t in xrange(self.future_seq_length_):
       this_init_state = init_state if t == 0 else []
       if self.is_conditional_fut_ and t > 0:
-        t2 = self.enc_seq_length_ + t - 1
-        input_frame=self.v_.col_slice(t2 * self.num_dims_, (t2+1) * self.num_dims_)
+        if train:
+            t2 = self.enc_seq_length_ + t - 1
+            input_frame=self.v_.col_slice(t2 * self.num_dims_, (t2+1) * self.num_dims_)
+        else:
+            t2 = t - 1
+            input_frame=self.v_fut_.col_slice(t2 * self.num_dims_, (t2+1) * self.num_dims_)
       else:
         input_frame = None
       self.lstm_stack_fut_.Fprop(input_frame=input_frame, init_state=this_init_state,
