@@ -80,8 +80,13 @@ class LSTMCombo(object):
             t2 = self.enc_seq_length_ + t - 1
             input_frame=self.v_.col_slice(t2 * self.num_dims_, (t2+1) * self.num_dims_)
         else:
+          # Instead of conditioning on true frame, condition on the generated frame at the test time
             t2 = t - 1
             input_frame=self.v_fut_.col_slice(t2 * self.num_dims_, (t2+1) * self.num_dims_)
+            if self.binary_data_:
+              input_frame.apply_sigmoid()
+            elif self.relu_data_:
+              input_frame.lower_bound(0)
       else:
         input_frame = None
       self.lstm_stack_fut_.Fprop(input_frame=input_frame, init_state=this_init_state,
