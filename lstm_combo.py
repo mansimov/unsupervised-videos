@@ -83,25 +83,26 @@ class LSTMCombo(object):
           # Instead of conditioning on true frame, condition on the generated frame at the test time
             t2 = t - 1
             input_frame=self.v_fut_.col_slice(t2 * self.num_dims_, (t2+1) * self.num_dims_)
-            if self.binary_data_:
-              input_frame.apply_sigmoid()
-            elif self.relu_data_:
-              input_frame.lower_bound(0)
       else:
         input_frame = None
+      output_frame = self.v_fut_.col_slice(t * self.num_dims_, (t+1) * self.num_dims_)
       self.lstm_stack_fut_.Fprop(input_frame=input_frame, init_state=this_init_state,
-                                 output_frame=self.v_fut_.col_slice(t * self.num_dims_, (t+1) * self.num_dims_), copy_init_state=self.future_copy_init_state_)
-
+                                 output_frame=output_frame, copy_init_state=self.future_copy_init_state_)
+      if not train:
+        if self.binary_data_:
+          output_frame.apply_sigmoid()
+        elif self.relu_data_:
+          output_frame.lower_bound(0)
 
     if self.binary_data_:
       if self.dec_seq_length_ > 0:
         self.v_dec_.apply_sigmoid()
-      if self.future_seq_length_ > 0:
+      if self.future_seq_length_ > 0 and train:
         self.v_fut_.apply_sigmoid()
     elif self.relu_data_:
       if self.dec_seq_length_ > 0:
         self.v_dec_.lower_bound(0)
-      if self.future_seq_length_ > 0:
+      if self.future_seq_length_ > 0 and train:
         self.v_fut_.lower_bound(0)
 
   def BpropAndOutp(self):
